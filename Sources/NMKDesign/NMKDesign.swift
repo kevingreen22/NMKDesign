@@ -142,21 +142,15 @@ public class NMK {
     public struct NMKButtonStyle: ButtonStyle {
         let iconName: String?
         let image: Image?
-        let width: CGFloat
-        let height: CGFloat
         
-        public init(iconName: String, width: CGFloat = 100, height: CGFloat = 100) {
+        public init(iconName: String) {
             self.iconName = iconName
             self.image = nil
-            self.width = width
-            self.height = height
         }
         
-        public init(image: Image, width: CGFloat = 100, height: CGFloat = 100) {
+        public init(image: Image) {
             self.iconName = nil
             self.image = image
-            self.width = width
-            self.height = height
         }
         
         
