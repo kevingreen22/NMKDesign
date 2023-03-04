@@ -156,7 +156,7 @@ public class NMK {
         
         public func makeBody(configuration: Configuration) -> some View {
             configuration.label
-                .modifier(NMKButton(isPressed: configuration.isPressed, iconName: "gear"))
+                .modifier(NMKButton(isPressed: configuration.isPressed, iconName: iconName ?? ""))
                 .scaleEffect(configuration.isPressed ? 0.999 : 1)
                 .animation(.easeInOut(duration: 5), value: configuration.isPressed)
         }
@@ -305,12 +305,10 @@ public class NMK {
                 ZStack {
                     LinearGradient.horizontalDarkReverse
                         .scaleEffect(0.5)
-                    //                    .frame(width: width, height: height)
                     
                     RoundedRectangle(cornerRadius: proxy.size.height * 0.175)
                         .inverseMask(buttonMask)
                         .foregroundColor(.nmkBackground)
-                    //                    .frame(width: width, height: height)
                         .shadow(color: .nmkShadow, radius: 3, x: 3, y: 3)
                         .shadow(color: .white, radius: 3, x: -3, y: -3)
                 }
@@ -587,7 +585,7 @@ struct NMK_View_Modifiers_Previews: PreviewProvider {
                 HStack {
                     Spacer()
                     Button("") { }
-                    .buttonStyle(NMK.NMKButtonStyle(iconName: "gear") )
+                    .buttonStyle(NMK.NMKButtonStyle(iconName: "gearshape.2.fill") )
                     
                     Spacer()
                     
