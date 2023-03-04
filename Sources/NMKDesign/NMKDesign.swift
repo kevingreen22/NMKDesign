@@ -125,8 +125,6 @@ extension Image {
     public func NMKImageMod() -> some View {
         LinearGradient.horizontalDark
             .mask(self.resizable().scaledToFit())
-            .padding(40)
-            .font(.system(size: 150, weight: .thin))
             .shadow(color: .white, radius: 2, x: -3, y: -3)
             .shadow(color: .nmkShadow, radius: 2, x: 3, y: 3)
     }
@@ -542,6 +540,8 @@ struct NMK_View_Modifiers_Previews: PreviewProvider {
                             VStack {
                                 Image(systemName: "photo")
                                     .NMKImageMod()
+                                    .padding(30)
+                                    .font(.system(size: 150, weight: .thin))
                                 
                                 HStack {
                                     Text("Title")
