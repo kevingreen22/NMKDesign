@@ -145,14 +145,14 @@ public class NMK {
         let width: CGFloat
         let height: CGFloat
         
-        init(iconName: String, width: CGFloat = 100, height: CGFloat = 100) {
+        public init(iconName: String, width: CGFloat = 100, height: CGFloat = 100) {
             self.iconName = iconName
             self.image = nil
             self.width = width
             self.height = height
         }
         
-        init(image: Image, width: CGFloat = 100, height: CGFloat = 100) {
+        public init(image: Image, width: CGFloat = 100, height: CGFloat = 100) {
             self.iconName = nil
             self.image = image
             self.width = width
@@ -411,7 +411,7 @@ public class NMK {
     public struct NMKProgressViewStyle: ProgressViewStyle {
         let width: CGFloat
         
-        init(width: CGFloat = UIScreen.main.bounds.width) {
+        public init(width: CGFloat = UIScreen.main.bounds.width) {
             self.width = width
         }
         
