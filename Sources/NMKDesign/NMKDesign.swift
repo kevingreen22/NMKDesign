@@ -172,49 +172,43 @@ public class NMK {
     private struct ButtonUp: View {
         let iconName: String?
         let image: Image?
-        let width: CGFloat
-        let height: CGFloat
         
-        init(iconName: String, width: CGFloat = 100, height: CGFloat = 100) {
+        init(iconName: String) {
             self.iconName = iconName
             self.image = nil
-            self.width = width
-            self.height = height
         }
         
-        init(image: Image, width: CGFloat = 100, height: CGFloat = 100) {
+        init(image: Image) {
             self.iconName = nil
             self.image = image
-            self.width = width
-            self.height = height
         }
         
         var body: some View {
-            ZStack {
-                RoundedRectangle(cornerRadius: height * 0.175)
-                    .frame(width: width, height: height)
-                    .foregroundColor(.nmkBackground)
-                    .shadow(color: .nmkShadow, radius: 3, x: 3, y: 3)
-                    .shadow(color: .white, radius: 3, x: -3, y: -3)
-                
-                LinearGradient.horizontalDarkReverse
-                    .mask(getImage()
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .scaleEffect(0.5)
-                    )
-                    .frame(width: width, height: height)
-                    .shadow(color: .white, radius: 2, x: -3, y: -3)
-                    .shadow(color: .nmkShadow, radius: 2, x: 3, y: 3)
+            GeometryReader { proxy in
+                ZStack {
+                    RoundedRectangle(cornerRadius: proxy.size.height * 0.175)
+                        .foregroundColor(.nmkBackground)
+                        .shadow(color: .nmkShadow, radius: 3, x: 3, y: 3)
+                        .shadow(color: .white, radius: 3, x: -3, y: -3)
+                    
+                    LinearGradient.horizontalDarkReverse
+                        .mask(getImage()
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .scaleEffect(0.5)
+                        )
+                        .shadow(color: .white, radius: 2, x: -3, y: -3)
+                        .shadow(color: .nmkShadow, radius: 2, x: 3, y: 3)
+                }
+                .compositingGroup()
+                .innerShadow(using: RoundedRectangle(cornerRadius: proxy.size.height * 0.175), withOffset: false, color: .white, blur: 0)
+                .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
+                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
+                .compositingGroup()
+                .innerShadow(using: RoundedRectangle(cornerRadius: proxy.size.height * 0.175), withOffset: false, color: .white, blur: 0)
+                .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
+                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
             }
-            .compositingGroup()
-            .innerShadow(using: RoundedRectangle(cornerRadius: height * 0.175), withOffset: false, color: .white, blur: 0)
-            .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
-            .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
-            .compositingGroup()
-            .innerShadow(using: RoundedRectangle(cornerRadius: height * 0.175), withOffset: false, color: .white, blur: 0)
-            .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
-            .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
         }
         
         func getImage() -> Image {
@@ -230,69 +224,62 @@ public class NMK {
     private struct ButtonPressed: View {
         let iconName: String?
         let image: Image?
-        let width: CGFloat
-        let height: CGFloat
         
-        init(iconName: String, width: CGFloat = 100, height: CGFloat = 100) {
+        init(iconName: String) {
             self.iconName = iconName
             self.image = nil
-            self.width = width
-            self.height = height
         }
         
-        init(image: Image, width: CGFloat = 100, height: CGFloat = 100) {
+        init(image: Image) {
             self.image = image
             self.iconName = nil
-            self.width = width
-            self.height = height
         }
         
         var body: some View {
-            ZStack {
-                Rectangle()
-                    .foregroundColor(.nmkBackground)
-                    .cornerRadius(height * 0.175)
-                    .frame(width: width, height: height)
+            GeometryReader { proxy in
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(.nmkBackground)
+                        .cornerRadius(proxy.size.height * 0.175)
+                    
+                    Rectangle()
+                        .foregroundColor(.nmkBackground)
+                        .cornerRadius(proxy.size.height * 0.175)
+                        .inverseMask(Rectangle()
+                            .cornerRadius(proxy.size.height * 0.175)
+                            .padding(proxy.size.height / 27)
+                        )
+                        .shadow(
+                            color: Color.nmkShadow.opacity(0.7),
+                            radius: proxy.size.height * 0.07,
+                            x: proxy.size.width * 0.07, y: proxy.size.height * 0.07)
+                        .shadow(
+                            color: Color(white: 1.0).opacity(0.9),
+                            radius: proxy.size.height * 0.07,
+                            x: -proxy.size.width * 0.07, y: -proxy.size.height * 0.07)
+                        .clipShape(RoundedRectangle(cornerRadius: proxy.size.height * 0.175))
+                    
+                    LinearGradient.horizontalDarkReverse
+                        .mask(getImage()
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .scaleEffect(0.5)
+                        )
+                        .shadow(
+                            color: Color.nmkShadow.opacity(0.5),
+                            radius: proxy.size.height * 0.07,
+                            x: proxy.size.width * 0.07, y: proxy.size.height * 0.07)
+                        .shadow(
+                            color: Color(white: 1.0).opacity(0.9),
+                            radius: proxy.size.height * 0.07,
+                            x: -proxy.size.width * 0.07, y: -proxy.size.height * 0.07)
+                }
                 
-                Rectangle()
-                    .foregroundColor(.nmkBackground)
-                    .cornerRadius(height * 0.175)
-                    .frame(width: width, height: height)
-                    .inverseMask(Rectangle()
-                        .cornerRadius(height * 0.175)
-                        .padding(height / 27)
-                    )
-                    .shadow(
-                        color: Color.nmkShadow.opacity(0.7),
-                        radius: height * 0.07,
-                        x: width * 0.07, y: height * 0.07)
-                    .shadow(
-                        color: Color(white: 1.0).opacity(0.9),
-                        radius: height * 0.07,
-                        x: -width * 0.07, y: -height * 0.07)
-                    .clipShape(RoundedRectangle(cornerRadius: height * 0.175))
-                
-                LinearGradient.horizontalDarkReverse
-                    .mask(getImage()
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .scaleEffect(0.5)
-                    )
-                    .frame(width: width, height: height)
-                    .shadow(
-                        color: Color.nmkShadow.opacity(0.5),
-                        radius: height * 0.07,
-                        x: width * 0.07, y: height * 0.07)
-                    .shadow(
-                        color: Color(white: 1.0).opacity(0.9),
-                        radius: height * 0.07,
-                        x: -width * 0.07, y: -height * 0.07)
+                .overlay(
+                    RoundedRectangle(cornerRadius: proxy.size.height * 0.175)
+                        .stroke(LinearGradient.diagonalLightBorder, lineWidth: 2)
+                )
             }
-            
-            .overlay(
-                RoundedRectangle(cornerRadius: height * 0.175)
-                    .stroke(LinearGradient.diagonalLightBorder, lineWidth: 2)
-            )
         }
         
         func getImage() -> Image {
@@ -308,35 +295,31 @@ public class NMK {
     private struct ButtonDisabled: View {
         let iconName: String?
         let image: Image?
-        let width: CGFloat
-        let height: CGFloat
         
-        init(iconName: String, width: CGFloat = 100, height: CGFloat = 100) {
+        init(iconName: String) {
             self.iconName = iconName
             self.image = nil
-            self.width = width
-            self.height = height
         }
         
-        init(image: Image, width: CGFloat = 100, height: CGFloat = 100) {
+        init(image: Image) {
             self.iconName = nil
             self.image = image
-            self.width = width
-            self.height = height
         }
         
         var body: some View {
-            ZStack {
-                LinearGradient.horizontalDarkReverse
-                    .scaleEffect(0.5)
-                    .frame(width: width, height: height)
-                
-                RoundedRectangle(cornerRadius: height * 0.175)
-                    .inverseMask(buttonMask)
-                    .foregroundColor(.nmkBackground)
-                    .frame(width: width, height: height)
-                    .shadow(color: .nmkShadow, radius: 3, x: 3, y: 3)
-                    .shadow(color: .white, radius: 3, x: -3, y: -3)
+            GeometryReader { proxy in
+                ZStack {
+                    LinearGradient.horizontalDarkReverse
+                        .scaleEffect(0.5)
+                    //                    .frame(width: width, height: height)
+                    
+                    RoundedRectangle(cornerRadius: proxy.size.height * 0.175)
+                        .inverseMask(buttonMask)
+                        .foregroundColor(.nmkBackground)
+                    //                    .frame(width: width, height: height)
+                        .shadow(color: .nmkShadow, radius: 3, x: 3, y: 3)
+                        .shadow(color: .white, radius: 3, x: -3, y: -3)
+                }
             }
             .compositingGroup()
             .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
@@ -369,24 +352,18 @@ public class NMK {
         let isDisabled: Bool
         let iconName: String?
         let image: Image?
-        let width: CGFloat
-        let height: CGFloat
         
-        init(isPressed: Bool, isDisabled: Bool = false, iconName: String, width: CGFloat = 100, height: CGFloat = 100) {
+        init(isPressed: Bool, isDisabled: Bool = false, iconName: String) {
             self.isPressed = isPressed
             self.isDisabled = isDisabled
             self.iconName = iconName
-            self.width = width
-            self.height = height
             self.image = nil
         }
         
-        init(isPressed: Bool, isDisabled: Bool = false, image: Image, width: CGFloat = 100, height: CGFloat = 100) {
+        init(isPressed: Bool, isDisabled: Bool = false, image: Image) {
             self.isPressed = isPressed
             self.isDisabled = isDisabled
             self.image = image
-            self.width = width
-            self.height = height
             self.iconName = nil
         }
         
