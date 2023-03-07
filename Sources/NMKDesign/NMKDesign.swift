@@ -1,10 +1,481 @@
 //
-//  NMK_Modifiers.swift
+//  NMKDesign.swift
 //
 //  Created by Kevin Green on 7/5/22.
 //
 
 import SwiftUI
+
+public class NMK {
+    
+    /// Progress View Style
+    public struct NMKProgressViewStyle: ProgressViewStyle {
+        let width: CGFloat
+        
+        public init(width: CGFloat = UIScreen.main.bounds.width) {
+            self.width = width
+        }
+        
+        public func makeBody(configuration: Configuration) -> some View {
+            let fractionCompleted: CGFloat = CGFloat(configuration.fractionCompleted ?? 0)
+            
+            ZStack(alignment: .leading) {
+                ZStack {
+                    Capsule()
+                        .frame(height: 14)
+                        .foregroundColor(Color(white: 0.8))
+                    LinearGradient.horizontalDarkToLight
+                        .frame(height: 14)
+                        .mask(Capsule())
+                        .opacity(0.7)
+                }.padding(.horizontal)
+                
+                ZStack {
+                    LinearGradient.horizontalLight
+                        .frame(
+                            width: (width - 32) * fractionCompleted,
+                            height: 10)
+                        .mask(
+                            Capsule()
+                                .padding(.horizontal, 2)
+                        )
+                    LinearGradient.verticalLightToDark
+                        .frame(
+                            width: (width - 32) * fractionCompleted,
+                            height: 10)
+                        .mask(
+                            Capsule()
+                                .padding(.horizontal, 2)
+                        )
+                        .opacity(0.7)
+                }
+                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 2, x: 0, y: 1)
+                .padding(.horizontal)
+            }
+            .clipShape(Capsule())
+        }
+    }
+
+    
+    /// Toggle Style
+    public struct NMKToggleStyle: ToggleStyle {
+        public func makeBody(configuration: Configuration) -> some View {
+            var tap: some Gesture {
+                TapGesture()
+                    .onEnded { _ in
+                        configuration.isOn.toggle()
+                    }
+            }
+            
+            var drag: some Gesture {
+                DragGesture(minimumDistance: 5)
+                    .onEnded { _ in
+                        configuration.isOn.toggle()
+                    }
+            }
+            
+//            Button {
+//                configuration.isOn.toggle()
+//            } label: {
+                return ZStack {
+                    outerBevel(configuration)
+                    innerColor(configuration)
+                    paddle(configuration)
+                }
+                .gesture(drag.simultaneously(with: tap))
+//            }
+        }
+                
+        /// Outer bevel
+        fileprivate func outerBevel(_ configuration: Configuration) -> some View {
+            RoundedRectangle(cornerRadius: 5)
+                .foregroundColor(.nmkBackground)
+                .frame(width: 60, height: 40)
+                .NMKDepth()
+                .NMKEmbossed(using: RoundedRectangle(cornerRadius: 5))
+        }
+        
+        /// Inner color
+        fileprivate func innerColor(_ configuration: Configuration) -> some View {
+            if #available(iOS 16.0, *) {
+                return HStack(spacing: 0) {
+                    Rectangle()
+                        .fill(LinearGradient(
+                            colors:
+                                [.red,
+                                 .red.opacity(0.8),
+                                 .red.opacity(0.7),
+                                 .red.opacity(0.6),],
+                            startPoint: .leading, endPoint: .trailing)
+                        )
+                        .cornerRadius(5, corners: [.topLeft, .bottomLeft])
+                    Rectangle()
+                        .fill(LinearGradient(
+                            colors:
+                                [.nmkDark.opacity(0.6),
+                                 .nmkDark.opacity(0.7),
+                                 .nmkDark.opacity(0.8),
+                                 .nmkDark
+                                ],
+                            startPoint: .leading, endPoint: .trailing)
+                        )
+                        .cornerRadius(5, corners: [.topRight, .bottomRight])
+                }
+                .frame(width: 53, height: 33)
+            } else {
+                // Fallback on earlier versions
+                return RoundedRectangle(cornerRadius: 5)
+                    .fill(LinearGradient(colors: [.red, .red, .nmkLight, .nmkDark, .nmkDark], startPoint: .leading, endPoint: .trailing))
+                    .frame(width: 53, height: 33)
+            }
+            
+        }
+        
+        /// Paddle
+        fileprivate func paddle(_ configuration: Configuration) -> some View {
+            ZStack {
+                Rectangle()
+                    .fill(Color.nmkLight)
+                    .cornerRadius(5, corners: [.topLeft, .bottomLeft])
+                    .frame(width: 25, height: 35)
+                    .shadow(color: .nmkShadow, radius: 1, x: configuration.isOn ? 0 : -3, y: 0)
+                Spacer()
+                
+                Rectangle()
+                    .fill(Color.nmkLight)
+                    .cornerRadius(5, corners: [.topLeft, .bottomLeft])
+                    .frame(width: 25, height: 35)
+                    .shadow(color: .nmkShadow, radius: 1, x: configuration.isOn ? -3 : 0, y: 0)
+            }
+            .rotation3DEffect(Angle(degrees: configuration.isOn ? 170 : 30), axis: (x: 0, y: 1, z: 0))
+            .offset(x: configuration.isOn ? 9 : -9)
+            .animation(.spring(), value: configuration.isOn)
+        }
+    }
+    
+    
+    /// Bordered Button Style
+    public struct NMKBordered: ButtonStyle {
+        let iconName: String?
+        let image: Image?
+        let isDisabled: Bool
+        
+        public init(iconName: String, isDisabled: Bool = false) {
+            self.iconName = iconName
+            self.image = nil
+            self.isDisabled = isDisabled
+        }
+        
+        public init(image: Image, isDisabled: Bool = false) {
+            self.iconName = nil
+            self.image = image
+            self.isDisabled = isDisabled
+        }
+        
+        
+        public func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .modifier(BorderedModifier(isPressed: configuration.isPressed, isDisabled: isDisabled, iconName: iconName ?? ""))
+                .scaleEffect(configuration.isPressed ? 0.999 : 1)
+                .animation(.easeInOut(duration: 5), value: configuration.isPressed)
+        }
+        
+    }
+    
+    private struct BorderedUp: View {
+        let iconName: String?
+        let image: Image?
+        
+        init(iconName: String) {
+            self.iconName = iconName
+            self.image = nil
+        }
+        
+        init(image: Image) {
+            self.iconName = nil
+            self.image = image
+        }
+        
+        var body: some View {
+            GeometryReader { proxy in
+                ZStack {
+                    RoundedRectangle(cornerRadius: proxy.size.height * 0.175)
+                        .foregroundColor(.nmkBackground)
+                        .shadow(color: .nmkShadow, radius: 3, x: 3, y: 3)
+                        .shadow(color: .white, radius: 3, x: -3, y: -3)
+                    
+                    LinearGradient.horizontalDarkReverse
+                        .mask(getImage()
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .scaleEffect(0.5)
+                        )
+                        .shadow(color: .white, radius: 2, x: -3, y: -3)
+                        .shadow(color: .nmkShadow, radius: 2, x: 3, y: 3)
+                }
+                .compositingGroup()
+                .innerShadow(using: RoundedRectangle(cornerRadius: proxy.size.height * 0.175), withOffset: false, color: .white, blur: 0)
+                .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
+                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
+                .compositingGroup()
+                .innerShadow(using: RoundedRectangle(cornerRadius: proxy.size.height * 0.175), withOffset: false, color: .white, blur: 0)
+                .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
+                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
+            }
+        }
+        
+        func getImage() -> Image {
+            if iconName != nil {
+                return Image(systemName: self.iconName!)
+            } else {
+                return image!
+            }
+        }
+        
+    }
+    
+    private struct BorderedPressed: View {
+        let iconName: String?
+        let image: Image?
+        
+        init(iconName: String) {
+            self.iconName = iconName
+            self.image = nil
+        }
+        
+        init(image: Image) {
+            self.image = image
+            self.iconName = nil
+        }
+        
+        var body: some View {
+            GeometryReader { proxy in
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(.nmkBackground)
+                        .cornerRadius(proxy.size.height * 0.175)
+                    
+                    Rectangle()
+                        .foregroundColor(.nmkBackground)
+                        .cornerRadius(proxy.size.height * 0.175)
+                        .inverseMask(Rectangle()
+                            .cornerRadius(proxy.size.height * 0.175)
+                            .padding(proxy.size.height / 27)
+                        )
+                        .shadow(
+                            color: Color.nmkShadow.opacity(0.7),
+                            radius: proxy.size.height * 0.07,
+                            x: proxy.size.width * 0.07, y: proxy.size.height * 0.07)
+                        .shadow(
+                            color: Color(white: 1.0).opacity(0.9),
+                            radius: proxy.size.height * 0.07,
+                            x: -proxy.size.width * 0.07, y: -proxy.size.height * 0.07)
+                        .clipShape(RoundedRectangle(cornerRadius: proxy.size.height * 0.175))
+                    
+                    LinearGradient.horizontalDarkReverse
+                        .mask(getImage()
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .scaleEffect(0.5)
+                        )
+                        .shadow(
+                            color: Color.nmkShadow.opacity(0.5),
+                            radius: proxy.size.height * 0.07,
+                            x: proxy.size.width * 0.07, y: proxy.size.height * 0.07)
+                        .shadow(
+                            color: Color(white: 1.0).opacity(0.9),
+                            radius: proxy.size.height * 0.07,
+                            x: -proxy.size.width * 0.07, y: -proxy.size.height * 0.07)
+                }
+                
+                .overlay(
+                    RoundedRectangle(cornerRadius: proxy.size.height * 0.175)
+                        .stroke(LinearGradient.diagonalLightBorder, lineWidth: 2)
+                )
+            }
+        }
+        
+        func getImage() -> Image {
+            if iconName != nil {
+                return Image(systemName: self.iconName!)
+            } else {
+                return image!
+            }
+        }
+        
+    }
+        
+    private struct BorderedModifier: ViewModifier {
+        let isPressed: Bool
+        let isDisabled: Bool
+        let iconName: String?
+        let image: Image?
+        
+        init(isPressed: Bool, isDisabled: Bool = false, iconName: String) {
+            self.isPressed = isPressed
+            self.isDisabled = isDisabled
+            self.iconName = iconName
+            self.image = nil
+        }
+        
+        init(isPressed: Bool, isDisabled: Bool = false, image: Image) {
+            self.isPressed = isPressed
+            self.isDisabled = isDisabled
+            self.image = image
+            self.iconName = nil
+        }
+        
+        
+        func body(content: Content) -> some View {
+            content
+            if isPressed {
+                iconName != nil ? BorderedPressed(iconName: iconName!) : BorderedPressed(image: image!)
+            } else if !isPressed {
+                iconName != nil ? BorderedUp(iconName: iconName!) : BorderedUp(image: image!)
+            }
+        }
+        
+    }
+    
+    
+    // Plain Button Style
+    public struct NMKPlain: ButtonStyle {
+        let iconName: String?
+        let image: Image?
+        let isDisabled: Bool
+        
+        init(iconName: String, isDisabled: Bool = false) {
+            self.iconName = iconName
+            self.image = nil
+            self.isDisabled = isDisabled
+        }
+        
+        init(image: Image, isDisabled: Bool = false) {
+            self.image = image
+            self.iconName = nil
+            self.isDisabled = isDisabled
+        }
+        
+        
+        public func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .modifier(PlainModifier(isPressed: configuration.isPressed, isDisabled: isDisabled, iconName: iconName ?? ""))
+                .scaleEffect(configuration.isPressed ? 0.999 : 1)
+                .animation(.easeInOut(duration: 5), value: configuration.isPressed)
+        }
+    }
+    
+    private struct PlainUp: View {
+        let iconName: String?
+        let image: Image?
+        
+        init(iconName: String) {
+            self.iconName = iconName
+            self.image = nil
+        }
+        
+        init(image: Image) {
+            self.iconName = nil
+            self.image = image
+        }
+        
+        var body: some View {
+            LinearGradient.horizontalDarkReverse
+                .mask(getImage()
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .scaleEffect(0.5)
+                )
+                .shadow(color: .white, radius: 2, x: -3, y: -3)
+                .shadow(color: .nmkShadow, radius: 2, x: 3, y: 3)
+                .compositingGroup()
+                .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
+                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
+                .compositingGroup()
+                .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
+                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
+        }
+        
+        func getImage() -> Image {
+            if iconName != nil {
+                return Image(systemName: self.iconName!)
+            } else {
+                return image!
+            }
+        }
+    }
+    
+    private struct PlainPressed: View {
+        let iconName: String?
+        let image: Image?
+        
+        init(iconName: String) {
+            self.iconName = iconName
+            self.image = nil
+        }
+        
+        init(image: Image) {
+            self.image = image
+            self.iconName = nil
+        }
+        
+        var body: some View {
+                LinearGradient.horizontalDarkReverse
+                    .mask(getImage()
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .scaleEffect(0.5)
+                    )
+                    .shadow(
+                        color: Color.nmkShadow.opacity(0.5), radius: 7, x: 7, y: 7)
+                    .shadow(
+                        color: Color(white: 1.0).opacity(0.9), radius: 7, x: -7, y: -7)
+        }
+        
+        func getImage() -> Image {
+            if iconName != nil {
+                return Image(systemName: self.iconName!)
+            } else {
+                return image!
+            }
+        }
+        
+    }
+    
+    private struct PlainModifier: ViewModifier {
+        let isPressed: Bool
+        let isDisabled: Bool
+        let iconName: String?
+        let image: Image?
+        
+        init(isPressed: Bool, isDisabled: Bool = false, iconName: String) {
+            self.isPressed = isPressed
+            self.isDisabled = isDisabled
+            self.iconName = iconName
+            self.image = nil
+        }
+        
+        init(isPressed: Bool, isDisabled: Bool = false, image: Image) {
+            self.isPressed = isPressed
+            self.isDisabled = isDisabled
+            self.image = image
+            self.iconName = nil
+        }
+        
+        
+        func body(content: Content) -> some View {
+            content
+            if isPressed {
+                iconName != nil ? PlainPressed(iconName: iconName!) : PlainPressed(image: image!)
+            } else if !isPressed {
+                iconName != nil ? PlainUp(iconName: iconName!) : PlainUp(image: image!)
+            }
+        }
+        
+    }
+  
+}
+
 
 extension View {
         
@@ -133,398 +604,6 @@ extension Image {
 
 
 
-
-public class NMK {
-    
-    /// Button Style
-    public struct NMKButtonStyle: ButtonStyle {
-        let iconName: String?
-        let image: Image?
-        
-        public init(iconName: String) {
-            self.iconName = iconName
-            self.image = nil
-        }
-        
-        public init(image: Image) {
-            self.iconName = nil
-            self.image = image
-        }
-        
-        
-        public func makeBody(configuration: Configuration) -> some View {
-            configuration.label
-                .modifier(NMKButton(isPressed: configuration.isPressed, iconName: iconName ?? ""))
-                .scaleEffect(configuration.isPressed ? 0.999 : 1)
-                .animation(.easeInOut(duration: 5), value: configuration.isPressed)
-        }
-        
-    }
-    
-    private struct ButtonUp: View {
-        let iconName: String?
-        let image: Image?
-        
-        init(iconName: String) {
-            self.iconName = iconName
-            self.image = nil
-        }
-        
-        init(image: Image) {
-            self.iconName = nil
-            self.image = image
-        }
-        
-        var body: some View {
-            GeometryReader { proxy in
-                ZStack {
-                    RoundedRectangle(cornerRadius: proxy.size.height * 0.175)
-                        .foregroundColor(.nmkBackground)
-                        .shadow(color: .nmkShadow, radius: 3, x: 3, y: 3)
-                        .shadow(color: .white, radius: 3, x: -3, y: -3)
-                    
-                    LinearGradient.horizontalDarkReverse
-                        .mask(getImage()
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .scaleEffect(0.5)
-                        )
-                        .shadow(color: .white, radius: 2, x: -3, y: -3)
-                        .shadow(color: .nmkShadow, radius: 2, x: 3, y: 3)
-                }
-                .compositingGroup()
-                .innerShadow(using: RoundedRectangle(cornerRadius: proxy.size.height * 0.175), withOffset: false, color: .white, blur: 0)
-                .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
-                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
-                .compositingGroup()
-                .innerShadow(using: RoundedRectangle(cornerRadius: proxy.size.height * 0.175), withOffset: false, color: .white, blur: 0)
-                .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
-                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
-            }
-        }
-        
-        func getImage() -> Image {
-            if iconName != nil {
-                return Image(systemName: self.iconName!)
-            } else {
-                return image!
-            }
-        }
-        
-    }
-    
-    private struct ButtonPressed: View {
-        let iconName: String?
-        let image: Image?
-        
-        init(iconName: String) {
-            self.iconName = iconName
-            self.image = nil
-        }
-        
-        init(image: Image) {
-            self.image = image
-            self.iconName = nil
-        }
-        
-        var body: some View {
-            GeometryReader { proxy in
-                ZStack {
-                    Rectangle()
-                        .foregroundColor(.nmkBackground)
-                        .cornerRadius(proxy.size.height * 0.175)
-                    
-                    Rectangle()
-                        .foregroundColor(.nmkBackground)
-                        .cornerRadius(proxy.size.height * 0.175)
-                        .inverseMask(Rectangle()
-                            .cornerRadius(proxy.size.height * 0.175)
-                            .padding(proxy.size.height / 27)
-                        )
-                        .shadow(
-                            color: Color.nmkShadow.opacity(0.7),
-                            radius: proxy.size.height * 0.07,
-                            x: proxy.size.width * 0.07, y: proxy.size.height * 0.07)
-                        .shadow(
-                            color: Color(white: 1.0).opacity(0.9),
-                            radius: proxy.size.height * 0.07,
-                            x: -proxy.size.width * 0.07, y: -proxy.size.height * 0.07)
-                        .clipShape(RoundedRectangle(cornerRadius: proxy.size.height * 0.175))
-                    
-                    LinearGradient.horizontalDarkReverse
-                        .mask(getImage()
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .scaleEffect(0.5)
-                        )
-                        .shadow(
-                            color: Color.nmkShadow.opacity(0.5),
-                            radius: proxy.size.height * 0.07,
-                            x: proxy.size.width * 0.07, y: proxy.size.height * 0.07)
-                        .shadow(
-                            color: Color(white: 1.0).opacity(0.9),
-                            radius: proxy.size.height * 0.07,
-                            x: -proxy.size.width * 0.07, y: -proxy.size.height * 0.07)
-                }
-                
-                .overlay(
-                    RoundedRectangle(cornerRadius: proxy.size.height * 0.175)
-                        .stroke(LinearGradient.diagonalLightBorder, lineWidth: 2)
-                )
-            }
-        }
-        
-        func getImage() -> Image {
-            if iconName != nil {
-                return Image(systemName: self.iconName!)
-            } else {
-                return image!
-            }
-        }
-        
-    }
-    
-    private struct ButtonDisabled: View {
-        let iconName: String?
-        let image: Image?
-        
-        init(iconName: String) {
-            self.iconName = iconName
-            self.image = nil
-        }
-        
-        init(image: Image) {
-            self.iconName = nil
-            self.image = image
-        }
-        
-        var body: some View {
-            GeometryReader { proxy in
-                ZStack {
-                    LinearGradient.horizontalDarkReverse
-                        .scaleEffect(0.5)
-                    
-                    RoundedRectangle(cornerRadius: proxy.size.height * 0.175)
-                        .inverseMask(buttonMask)
-                        .foregroundColor(.nmkBackground)
-                        .shadow(color: .nmkShadow, radius: 3, x: 3, y: 3)
-                        .shadow(color: .white, radius: 3, x: -3, y: -3)
-                }
-            }
-            .compositingGroup()
-            .shadow(color: Color.white.opacity(0.9), radius: 10, x: -5, y: -5)
-            .shadow(color: Color.nmkShadow.opacity(0.5), radius: 10, x: 5, y: 5)
-        }
-        
-        var buttonMask: some View {
-            ZStack {
-                Rectangle()
-                    .foregroundColor(.white)
-                getImage()
-                    .resizable()
-                    .scaledToFit()
-                    .scaleEffect(0.5)
-            }
-        }
-        
-        func getImage() -> Image {
-            if iconName != nil {
-                return Image(systemName: self.iconName!)
-            } else {
-                return image!
-            }
-        }
-        
-    }
-    
-    private struct NMKButton: ViewModifier {
-        let isPressed: Bool
-        let isDisabled: Bool
-        let iconName: String?
-        let image: Image?
-        
-        init(isPressed: Bool, isDisabled: Bool = false, iconName: String) {
-            self.isPressed = isPressed
-            self.isDisabled = isDisabled
-            self.iconName = iconName
-            self.image = nil
-        }
-        
-        init(isPressed: Bool, isDisabled: Bool = false, image: Image) {
-            self.isPressed = isPressed
-            self.isDisabled = isDisabled
-            self.image = image
-            self.iconName = nil
-        }
-        
-        
-        func body(content: Content) -> some View {
-            content
-            if !isDisabled {
-                if isPressed {
-                    iconName != nil ? ButtonPressed(iconName: iconName!) : ButtonPressed(image: image!)
-                } else {
-                    iconName != nil ? ButtonUp(iconName: iconName!) : ButtonUp(image: image!)
-                }
-            } else {
-                iconName != nil ? ButtonDisabled(iconName: iconName!) : ButtonDisabled(image: image!)
-            }
-        }
-        
-    }
-    
-    
-    /// Progress View Style
-    public struct NMKProgressViewStyle: ProgressViewStyle {
-        let width: CGFloat
-        
-        public init(width: CGFloat = UIScreen.main.bounds.width) {
-            self.width = width
-        }
-        
-        public func makeBody(configuration: Configuration) -> some View {
-            let fractionCompleted: CGFloat = CGFloat(configuration.fractionCompleted ?? 0)
-            
-            ZStack(alignment: .leading) {
-                ZStack {
-                    Capsule()
-                        .frame(height: 14)
-                        .foregroundColor(Color(white: 0.8))
-                    LinearGradient.horizontalDarkToLight
-                        .frame(height: 14)
-                        .mask(Capsule())
-                        .opacity(0.7)
-                }.padding(.horizontal)
-                
-                ZStack {
-                    LinearGradient.horizontalLight
-                        .frame(
-                            width: (width - 32) * fractionCompleted,
-                            height: 10)
-                        .mask(
-                            Capsule()
-                                .padding(.horizontal, 2)
-                        )
-                    LinearGradient.verticalLightToDark
-                        .frame(
-                            width: (width - 32) * fractionCompleted,
-                            height: 10)
-                        .mask(
-                            Capsule()
-                                .padding(.horizontal, 2)
-                        )
-                        .opacity(0.7)
-                }
-                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 2, x: 0, y: 1)
-                .padding(.horizontal)
-            }
-            .clipShape(Capsule())
-        }
-    }
-    
-    
-    /// Toggle Style
-    public struct NMKToggleStyle: ToggleStyle {
-        public func makeBody(configuration: Configuration) -> some View {
-            var tap: some Gesture {
-                TapGesture()
-                    .onEnded { _ in
-                        configuration.isOn.toggle()
-                    }
-            }
-            
-            var drag: some Gesture {
-                DragGesture(minimumDistance: 5)
-                    .onEnded { _ in
-                        configuration.isOn.toggle()
-                    }
-            }
-            
-//            Button {
-//                configuration.isOn.toggle()
-//            } label: {
-                return ZStack {
-                    outerBevel(configuration)
-                    innerColor(configuration)
-                    paddle(configuration)
-                }
-                .gesture(drag.simultaneously(with: tap))
-//            }
-        }
-                
-        /// Outer bevel
-        fileprivate func outerBevel(_ configuration: Configuration) -> some View {
-            RoundedRectangle(cornerRadius: 5)
-                .foregroundColor(.nmkBackground)
-                .frame(width: 60, height: 40)
-                .NMKDepth()
-                .NMKEmbossed(using: RoundedRectangle(cornerRadius: 5))
-        }
-        
-        /// Inner color
-        fileprivate func innerColor(_ configuration: Configuration) -> some View {
-            if #available(iOS 16.0, *) {
-                return HStack(spacing: 0) {
-                    Rectangle()
-                        .fill(LinearGradient(
-                            colors:
-                                [.red,
-                                 .red.opacity(0.8),
-                                 .red.opacity(0.7),
-                                 .red.opacity(0.6),],
-                            startPoint: .leading, endPoint: .trailing)
-                        )
-                        .cornerRadius(5, corners: [.topLeft, .bottomLeft])
-                    Rectangle()
-                        .fill(LinearGradient(
-                            colors:
-                                [.nmkDark.opacity(0.6),
-                                 .nmkDark.opacity(0.7),
-                                 .nmkDark.opacity(0.8),
-                                 .nmkDark
-                                ],
-                            startPoint: .leading, endPoint: .trailing)
-                        )
-                        .cornerRadius(5, corners: [.topRight, .bottomRight])
-                }
-                .frame(width: 53, height: 33)
-            } else {
-                // Fallback on earlier versions
-                return RoundedRectangle(cornerRadius: 5)
-                    .fill(LinearGradient(colors: [.red, .red, .nmkLight, .nmkDark, .nmkDark], startPoint: .leading, endPoint: .trailing))
-                    .frame(width: 53, height: 33)
-            }
-            
-        }
-        
-        /// Paddle
-        fileprivate func paddle(_ configuration: Configuration) -> some View {
-            ZStack {
-                Rectangle()
-                    .fill(Color.nmkLight)
-                    .cornerRadius(5, corners: [.topLeft, .bottomLeft])
-                    .frame(width: 25, height: 35)
-                    .shadow(color: .nmkShadow, radius: 1, x: configuration.isOn ? 0 : -3, y: 0)
-                Spacer()
-                
-                Rectangle()
-                    .fill(Color.nmkLight)
-                    .cornerRadius(5, corners: [.topLeft, .bottomLeft])
-                    .frame(width: 25, height: 35)
-                    .shadow(color: .nmkShadow, radius: 1, x: configuration.isOn ? -3 : 0, y: 0)
-            }
-            .rotation3DEffect(Angle(degrees: configuration.isOn ? 170 : 30), axis: (x: 0, y: 1, z: 0))
-            .offset(x: configuration.isOn ? 9 : -9)
-            .animation(.spring(), value: configuration.isOn)
-        }
-    }
-    
-}
-
-
-
-
-
 // MARK: - Preview
 struct NMK_View_Modifiers_Previews: PreviewProvider {
     static var previews: some View {
@@ -581,23 +660,31 @@ struct NMK_View_Modifiers_Previews: PreviewProvider {
                 
                 Divider()
                
-                // Buttons & Toggle
-                HStack {
-                    Spacer()
-                    Button("") { }
-                    .buttonStyle(NMK.NMKButtonStyle(iconName: "gearshape.2.fill") )
-                    
-                    Spacer()
-                    
-                    Toggle("Toggle", isOn: .constant(false))
-                        .toggleStyle(NMK.NMKToggleStyle())
-                    
-                    Spacer()
-                }.padding()
+                // Buttons
+                Group {
+                    HStack {
+                        // Button Style 1
+                        Button("Bordered") { }
+                            .buttonStyle(NMK.NMKBordered(iconName: "gearshape.2.fill") )
+                        
+                        Spacer()
+                        
+                        // Button Style 2
+                        Button("Plain") { }
+                            .buttonStyle(NMK.NMKPlain(iconName: "gear"))
+                        
+                    }.padding()
+                }
                 
                 Divider()
                 
-                // Embossed View
+                // Toggle Style
+                Group {
+                    Toggle("Toggle", isOn: .constant(false))
+                        .toggleStyle(NMK.NMKToggleStyle())
+                }
+                
+                // Generic modifiers
                 Group {
                     HStack {
                         Circle()
