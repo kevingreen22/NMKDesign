@@ -344,13 +344,13 @@ public class NMK {
         let image: Image?
         let isDisabled: Bool
         
-        init(iconName: String, isDisabled: Bool = false) {
+        public init(iconName: String, isDisabled: Bool = false) {
             self.iconName = iconName
             self.image = nil
             self.isDisabled = isDisabled
         }
         
-        init(image: Image, isDisabled: Bool = false) {
+        public init(image: Image, isDisabled: Bool = false) {
             self.image = image
             self.iconName = nil
             self.isDisabled = isDisabled
