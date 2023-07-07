@@ -1,6 +1,5 @@
 //
 //  LinearGradientExtension.swift
-//  Lineize
 //
 //  Created by Kevin Green on 7/5/22.
 //
