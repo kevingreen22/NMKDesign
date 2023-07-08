@@ -6,7 +6,15 @@
 
 import SwiftUI
 
+@available(iOS 15.0, *)
 public class NMK {
+    
+    public static var colorScheme: ColorScheme = ColorScheme(main: Color(uiColor: UIColor(red: 0.592, green: 0.651, blue: 0.710, alpha: 1.000)))
+    
+    init(colorScheme: ColorScheme = ColorScheme(main: Color(uiColor: UIColor(red: 0.592, green: 0.651, blue: 0.710, alpha: 1.000)))) {
+        NMK.colorScheme = colorScheme
+    }
+    
     
     /// Progress View Style
     public struct NMKProgressViewStyle: ProgressViewStyle {
@@ -49,7 +57,7 @@ public class NMK {
                         )
                         .opacity(0.7)
                 }
-                .shadow(color: Color.nmkShadow.opacity(0.5), radius: 2, x: 0, y: 1)
+                .shadow(color: colorScheme.nmkShadow.opacity(0.5)  /*Color.nmkShadow.opacity(0.5)*/, radius: 2, x: 0, y: 1)
                 .padding(.horizontal)
             }
             .clipShape(Capsule())
@@ -605,6 +613,7 @@ extension Image {
 
 
 // MARK: - Preview
+@available(iOS 15.0, *)
 struct NMK_View_Modifiers_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
