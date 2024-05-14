@@ -6,7 +6,7 @@
 
 import SwiftUI
 
-@available(iOS 15.0, *)
+@available(iOS 14.0, *)
 public struct ColorScheme {
     var nmkMain: Color
     var nmkBackground: Color!

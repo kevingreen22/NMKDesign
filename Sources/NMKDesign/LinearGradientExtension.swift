@@ -6,6 +6,7 @@
 
 import SwiftUI
 
+@available(iOS 14.0, *)
 extension LinearGradient {
   public static var diagonalDarkBorder: LinearGradient {
     LinearGradient(

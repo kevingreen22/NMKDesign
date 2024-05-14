@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 14.0, *)
 extension UIColor {
     
     public class var nmkBackground: UIColor {
