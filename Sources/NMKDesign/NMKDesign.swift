@@ -8,7 +8,7 @@ import SwiftUI
 
 @available(iOS 14.0, *)
 public class NMK {
-        
+    
     public static var colorScheme: ColorScheme = ColorScheme(main: Color(UIColor(red: 0.592, green: 0.651, blue: 0.710, alpha: 1.000)))
     
     init(colorScheme: ColorScheme = ColorScheme(main: Color(UIColor(red: 0.592, green: 0.651, blue: 0.710, alpha: 1.000)))) {
