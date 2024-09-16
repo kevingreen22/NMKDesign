@@ -43,7 +43,8 @@ import KGViews
 - [Raised Shadow Example](#raised-shadow-example)
 - [Depth Example](#depth-example)
 
-<img src='https://github.com/kevingreen22/NMKDesign/tree/developer/readMe_resources/NMKDesign.png' height="625"">
+![NMKDesign](https://github.com/user-attachments/assets/47f09a8e-affc-4901-b101-c38262596b3b)
+
 
 ### Image Example
 
