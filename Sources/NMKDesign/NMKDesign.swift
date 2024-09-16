@@ -11,10 +11,14 @@ public class NMK {
     
     public static var colorScheme: ColorScheme = ColorScheme(main: Color(UIColor(red: 0.592, green: 0.651, blue: 0.710, alpha: 1.000)))
     
-    init(colorScheme: ColorScheme = ColorScheme(main: Color(UIColor(red: 0.592, green: 0.651, blue: 0.710, alpha: 1.000)))) {
-        NMK.colorScheme = colorScheme
-    }
+//    init(colorScheme: ColorScheme = ColorScheme(main: Color(UIColor(red: 0.592, green: 0.651, blue: 0.710, alpha: 1.000)))) {
+//        NMK.colorScheme = colorScheme
+//    }
     
+    public static func setColorScheme(with color: Color) {
+        let newScheme = ColorScheme(main: color)
+        NMK.colorScheme = newScheme
+    }
     
     /// Progress View Style
     public struct NMKProgressViewStyle: ProgressViewStyle {
@@ -591,16 +595,13 @@ extension View {
 
 
 extension Text {
-    
     public func NMKText() -> SwiftUI.Text {
         self.foregroundColor(.nmkDark)
     }
-    
 }
 
 
 extension Image {
-    
     public func NMKImageMod() -> some View {
         LinearGradient.horizontalDark
             .mask(self.resizable().scaledToFit())
@@ -608,132 +609,6 @@ extension Image {
             .shadow(color: .nmkShadow, radius: 2, x: 3, y: 3)
     }
 }
-
-
-
-
-// MARK: - Preview
-@available(iOS 15.0, *)
-struct NMK_View_Modifiers_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Color.nmkBackground.ignoresSafeArea()
-            
-            VStack {
-                
-                // Card
-                Group {
-                    Rectangle()
-                        .overlay(
-                            VStack {
-                                Image(systemName: "photo")
-                                    .NMKImageMod()
-                                    .padding(30)
-                                    .font(.system(size: 150, weight: .thin))
-                                
-                                HStack {
-                                    Text("Title")
-                                        .NMKText()
-                                        .bold()
-                                        .padding(.leading)
-                                    Spacer()
-                                }
-                                HStack {
-                                    Text("Subtitle")
-                                        .NMKText()
-                                        .padding([.leading, .bottom])
-                                    Spacer()
-                                }
-                            }
-                        )
-                        .NMKBackground()
-                        .frame(width: 180, height: 260)
-                    
-                    Text("Card")
-                        .NMKText()
-                        .bold()
-                        .padding(.bottom)
-                }
-                
-                Divider()
-                
-                // Progress View
-                Group {
-                    Text("Progress View")
-                        .NMKText()
-                    
-                    ProgressView(value: 0.4)
-                        .progressViewStyle(NMK.NMKProgressViewStyle())
-                        .padding()
-                }
-                
-                Divider()
-               
-                // Buttons
-                Group {
-                    HStack {
-                        // Button Style 1
-                        Button("Bordered") { }
-                            .buttonStyle(NMK.NMKBordered(iconName: "gearshape.2.fill") )
-                        
-                        Spacer()
-                        
-                        // Button Style 2
-                        Button("Plain") { }
-                            .buttonStyle(NMK.NMKPlain(iconName: "gear"))
-                        
-                    }.padding()
-                }
-                
-                Divider()
-                
-                // Toggle Style
-                Group {
-                    Toggle("Toggle", isOn: .constant(false))
-                        .toggleStyle(NMK.NMKToggleStyle())
-                }
-                
-                // Generic modifiers
-                Group {
-                    HStack {
-                        Circle()
-                            .foregroundColor(.nmkBackground)
-                            .NMKEmbossed(using: Circle())
-                            .overlay(
-                                Text("Embossed")
-                                    .NMKText()
-                                    .bold()
-                            )
-                        
-                        Circle()
-                            .foregroundColor(.nmkBackground)
-                            .NMKRaisedShadow(radius: 7)
-                            .overlay(
-                                Text("Raised Shadow")
-                                    .NMKText()
-                                    .bold()
-                            )
-                        
-                        Circle()
-                            .foregroundColor(.nmkBackground)
-                            .NMKDepth()
-                            .overlay(
-                                Text("Depth")
-                                    .NMKText()
-                                    .bold()
-                            )
-                        
-                    }
-                    .padding()
-                }
-                
-            }
-        }
-    }
-}
-
-
-
 
 
 
@@ -750,5 +625,164 @@ fileprivate struct RoundedCorner: Shape {
     func path(in rect: CGRect) -> Path {
         let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         return Path(path.cgPath)
+    }
+}
+
+
+
+
+
+
+// MARK: - Preview
+@available(iOS 15.0, *)
+#Preview {
+    NMK.setColorScheme(with: .green)
+    
+    return ZStack {
+        Color.nmkBackground.ignoresSafeArea()
+        VStack {
+            Card()
+            Divider()
+            progressView()
+            Divider()
+            Buttons()
+            Divider()
+            NMKToggle().padding(.vertical)
+            Divider()
+            Generics()
+        }
+    }
+}
+
+// Preview
+fileprivate struct Card: View {
+    var body: some View {
+        // Card
+        Group {
+            Rectangle()
+                .overlay(
+                    VStack {
+                        Image(systemName: "photo")
+                            .NMKImageMod()
+                            .padding(30)
+                            .font(.system(size: 150, weight: .thin))
+                        
+                        HStack {
+                            Text("Title")
+                                .NMKText()
+                                .bold()
+                                .padding(.leading)
+                            Spacer()
+                        }
+                        HStack {
+                            Text("Subtitle")
+                                .NMKText()
+                                .padding([.leading, .bottom])
+                            Spacer()
+                        }
+                    }
+                )
+                .NMKBackground()
+                .frame(width: 180, height: 260)
+            
+            Text("Card")
+                .NMKText()
+                .bold()
+                .padding(.bottom)
+        }
+    }
+}
+
+// Preview
+fileprivate struct progressView: View {
+    @State private var progressValue = 0.1
+    var body: some View {
+        // Progress View
+        Group {
+            Text("Progress View").NMKText()
+            
+            HStack {
+                Button("") { if progressValue > 0 { progressValue -= 0.1 } }
+                    .frame(width: 40)
+                    .buttonStyle(NMK.NMKPlain(iconName: "minus"))
+                ProgressView(value: progressValue)
+                    .progressViewStyle(NMK.NMKProgressViewStyle())
+                    .animation(.easeIn, value: progressValue)
+                Button("") { if progressValue < 1 { progressValue += 0.1 } }
+                    .frame(width: 40)
+                    .buttonStyle(NMK.NMKPlain(iconName: "plus"))
+            }.padding()
+        }
+    }
+}
+
+// Preview
+fileprivate struct Buttons: View {
+    var body: some View {
+        // Buttons
+        Group {
+            HStack {
+                // Button Style 1
+                Button("Bordered") { }
+                    .buttonStyle(NMK.NMKBordered(iconName: "gearshape.2.fill") )
+                
+                Spacer()
+                
+                // Button Style 2
+                Button("Plain") { }
+                    .buttonStyle(NMK.NMKPlain(iconName: "gear"))
+                
+            }.padding()
+        }
+    }
+}
+
+// Preview
+fileprivate struct NMKToggle: View {
+    @State private var isOn = false
+    var body: some View {
+        // Toggle Style
+        Group {
+            Toggle("Toggle", isOn: $isOn)
+                .toggleStyle(NMK.NMKToggleStyle())
+        }
+    }
+}
+
+// Preview
+fileprivate struct Generics: View {
+    var body: some View {
+        // Generic modifiers
+        Group {
+            HStack {
+                Circle()
+                    .foregroundColor(.nmkBackground)
+                    .NMKEmbossed(using: Circle())
+                    .overlay(
+                        Text("Embossed")
+                            .NMKText()
+                            .font(.callout)
+                    )
+                
+                Circle()
+                    .foregroundColor(.nmkBackground)
+                    .NMKRaisedShadow(radius: 7)
+                    .overlay(
+                        Text("Raised Shadow")
+                            .NMKText()
+                            .font(.callout)
+                    )
+                
+                Circle()
+                    .foregroundColor(.nmkBackground)
+                    .NMKDepth()
+                    .overlay(
+                        Text("Depth")
+                            .NMKText()
+                            .font(.callout)
+                    )
+                
+            }
+        }
     }
 }

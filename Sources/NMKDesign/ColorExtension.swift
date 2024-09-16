@@ -7,7 +7,7 @@
 import SwiftUI
 
 @available(iOS 14.0, *)
-public struct ColorScheme {
+public class ColorScheme {
     var nmkMain: Color
     var nmkBackground: Color!
     var nmkDark: Color!
@@ -16,7 +16,15 @@ public struct ColorScheme {
     var nmkOffWhite: Color!
     
     private var components: [CGFloat]?
-        
+    
+    /// Initializes a new color scheme with specific colors.
+    /// - Parameters:
+    ///   - nmkMain: The main color of the scheme.
+    ///   - nmkBackground: A standard background color.
+    ///   - nmkDark: A darker version of the main color. Used for gradients.
+    ///   - nmkLight: A lighter version of the main color. Used for gradients.
+    ///   - nmkShadow: A shadow color.
+    ///   - nmkOffWhite: An off white or very light version of the main color.
     init(nmkMain: Color, nmkBackground: Color, nmkDark: Color, nmkLight: Color, nmkShadow: Color, nmkOffWhite: Color) {
         self.nmkMain = nmkMain
         self.nmkBackground = nmkBackground
@@ -26,6 +34,7 @@ public struct ColorScheme {
         self.nmkOffWhite = nmkOffWhite
     }
     
+    /// Initializes a new color scheme based off of a main color.
     init(main: Color) {
         components = UIColor(main).cgColor.components
         self.nmkMain = main
@@ -60,28 +69,28 @@ public struct ColorScheme {
 
 
 extension Color {
-  public static var nmkBackground: Color {
-    Color(.nmkBackground)
-  }
-  
-  public static var nmkDark: Color {
-    Color(.nmkDark)
-  }
-  
-  public static var nmkShadow: Color {
-    Color(.nmkShadow)
-  }
-  
-  public static var nmkMain: Color {
-    Color(.nmkMain)
-  }
-  
-  public static var nmkLight: Color {
-    Color(.nmkLight)
-  }
-  
-  public static var nmkOffWhite: Color {
-    Color(.nmkOffWhite)
-  }
+    public static var nmkMain: Color {
+        Color(.nmkMain)
+    }
+    
+    public static var nmkBackground: Color {
+        Color(.nmkBackground)
+    }
+    
+    public static var nmkDark: Color {
+        Color(.nmkDark)
+    }
+    
+    public static var nmkShadow: Color {
+        Color(.nmkShadow)
+    }
+    
+    public static var nmkLight: Color {
+        Color(.nmkLight)
+    }
+    
+    public static var nmkOffWhite: Color {
+        Color(.nmkOffWhite)
+    }
 }
 
