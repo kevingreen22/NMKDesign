@@ -49,7 +49,7 @@ import KGViews
 
 ```swift
 Image(systemName: "photo")
-  .NMKImageMod(
+  .NMKImageMod()
 ```
 
 ### Text Example
