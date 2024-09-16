@@ -43,7 +43,7 @@ import KGViews
 - [Raised Shadow Example](#raised-shadow-example)
 - [Depth Example](#depth-example)
 
-![Sliders Screenshot](https://github.com/kevingreen22/NMKDesign/tree/developer/readMe_resources/bar_sliders.gif)
+![Sliders Screenshot](https://github.com/kevingreen22/NMKDesign/tree/developer/readMe_resources/NMKDesign.png)
 
 ### Image Example
 
